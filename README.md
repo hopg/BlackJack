@@ -20,7 +20,11 @@ The player can continue to play and accrue chips however, if the player runs out
 - The dealer busts.
 - The dealer's hand value is greater than the player's hand value, the dealer wins.
 
-**Required Modules:**
+#### **Required Modules:**
 - random
 - pandas (DataFrame)
 - IPython.display (clear_output)
+
+#### **Notes**:
+- Can input "y"/"n" for any yes/no question, as a result, words starting with "y" or "n" will be passed through as yes or no respectively.
+- Currently if the player is lucky enough to draw a 21, the player will still be able to place a bet and can effectively bet all their chips with 100% certainty of a win. 
