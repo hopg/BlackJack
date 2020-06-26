@@ -86,7 +86,7 @@ class Chips():
         #Number of chips
         self.amount = amount
         
-    def bet(self,chips):
+    def lose(self,chips):
         self.amount-=chips
     
     def win(self,chips):
@@ -112,20 +112,24 @@ def replay():
         global player
         global dealer
         global win_cons
+        global betting
         
         playing = False
         player = False
+        betting = False
         dealer = False
         win_cons = False
     
     def game_on():
-        global player
+        global playing
         global dealer
         global win_cons
+        global player
          
-        player = True
+        playing = True    
         dealer = False
         win_cons = False
+        player = False
         
     
     if player_chips.amount == 0:
@@ -154,35 +158,70 @@ def replay():
                 print("\nThanks for playing!")
                 off()
                 break
+                
 
+def player_fold():
+    global betting
+    global fold
+    
+    while True:
+        fold = input("Would you like to fold this hand?: ")
+
+        if len(fold) == 0:
+            clear_output()
+            print("\nPlease enter in a character!")                        
+
+        elif fold.lower()[0] not in ("y","n"):
+            clear_output()
+            print("\nPlease enter in yes or no!")
+            display_hands()
+
+        elif fold.lower()[0] == "y":
+            clear_output()
+            print("\nThis hand has been folded!")
+            display_hands()
+            betting = False
+            replay()
+            break
+        else:
+            clear_output()
+            break
+            
+                
 def hit():
     global player
     global dealer
     global player_hand
+    global fold
     
-    while True:
-        display_hands()
-        hit = input("\nWould you like to hit?: ")
+    if fold.lower()[0] == "y":
+        player = False
 
-        if len(hit) == 0:
-            clear_output()
-            print("You must enter in something!")
+    else:
+        while True:
+            display_hands()
+            hit = input("\nWould you like to hit?: ")
 
-        elif hit.lower()[0] == "y":
-            player_hand.append(the_deck.hit())
-            clear_output()
-            break
+            if len(hit) == 0:
+                clear_output()
+                print("You must enter in something!")
 
-        elif hit.lower()[0] not in ("y","n"):
-            clear_output()
-            print("Please enter in yes or no!")
+            elif hit.lower()[0] == "y":
+                player_hand.append(the_deck.hit())
+                clear_output()
+                break
 
-        else:
-            clear_output()
-            player = False
-            dealer = True
-            break
+            elif hit.lower()[0] not in ("y","n"):
+                clear_output()
+                print("Please enter in yes or no!")
 
+            else:
+                clear_output()
+                player = False
+                dealer = True
+                break
+     
+        
         
 player_chips = Chips(100)
 the_deck = Deck()
@@ -191,47 +230,58 @@ print("Hello, welcome to BlackJack!")
 
 betting = True
 playing = True
-player = True
 dealer = False
 win_cons = False
 
 
 while playing:
+    player = True
+    betting = True
     
-    while betting:
-        print(f"\nYou have {player_chips.amount} chips.")
-        
-        try:
-            bet = int(input("\nHow much would like to bet?: "))
-            
-        except:
-            clear_output()
-            print(f"\nPlease enter in a whole number that is less than {player_chips.amount}!")
-            
-        else:
-            if bet > player_chips.amount:
-                clear_output()
-                print(f"\nYou don't have enough chips! Please enter an amount less than {player_chips.amount}!!")
-                
-            else:
-                player_chips.bet(bet)
-                clear_output()
-                print(f"\nYou have bet {bet} chips and have {player_chips.amount} chips left!")
-                break
-
+    # Fold variable reset on each time a round commences
+    fold = ' '
+    
     print("\nShuffling the deck!")
     the_deck.shuffle()
     player_hand = the_deck.deal()
     dealer_hand = the_deck.deal()
+
     
     while player:
         player_turn = Hand(player_hand)
+        
+        while betting:
+            # Will print the hand out to the console, takes into account whether or not to show one dealer card or two
+            display_hands()
+            print(f"\nYou have {player_chips.amount} chips.")
+
+            try:
+                bet = int(input("\nHow much would like to bet?: "))
+
+            except:
+                clear_output()
+                print(f"\nPlease enter in a whole number that is less than {player_chips.amount}!")
+
+            else:
+                if bet == 0:
+                    # Function giving the player the option to fold their current hand
+                    player_fold()
+                            
+                elif bet > player_chips.amount:
+                    clear_output()
+                    print(f"\nYou don't have enough chips! Please enter an amount less than {player_chips.amount}!!")
+
+                else:
+                    clear_output()
+                    print(f"\nYou have bet {bet} chips!\n{player_chips.amount - bet} remaining!")
+                    betting = False
         
         if player_turn.aces_check():
             print("\nAs the player has an ace, and the hand is over 21, the sum has been reduced by 10!")
 
         if player_turn.sum > 21:
             display_hands()
+            player_chips.lose(bet)
             print(f"\nPlayer has bust! \nYou have lost {bet} chips!\nYou have {player_chips.amount} chips remaining!")
             replay()
             break
@@ -241,9 +291,10 @@ while playing:
             print("\nYou have scored 21 and won the hand!")
             win_cons = True
             break
-            
+        
+        # Function that asks the player if they would like to hit
         hit()
-    
+        
     while dealer:
         dealer_turn = Hand(dealer_hand)
         
@@ -253,7 +304,7 @@ while playing:
         display_hands()
         
         if dealer_turn.sum > 21:
-            player_chips.win(bet*2)
+            player_chips.win(bet)
             print(f"\nThe dealer has bust!\nYou have won {bet} chips!\nYou have {player_chips.amount} chips!")
             replay()
                          
@@ -276,16 +327,16 @@ while playing:
     while win_cons:
            
         if player_turn.sum == 21 or player_turn.sum > dealer_turn.sum:
-            player_chips.win(bet*2)
-            print(f"\nYou have won {bet*2} chips!\nYou have {player_chips.amount} chips!")
+            player_chips.win(bet)
+            print(f"\nYou have won {bet} chips!\nYou have {player_chips.amount} chips!")
             
         
         elif player_turn.sum < dealer_turn.sum:
+            player_chips.lose(bet)
             print(f"\nYou have lost {bet} chips!\nYou have {player_chips.amount} chips remaining!")
                 
         
         elif player_turn.sum == dealer_turn.sum:
-            player_chips.win(bet)
             print(f"\nTie game, your chips are returned!\nYou have {player_chips.amount} chips remaining!")
 
         replay()
