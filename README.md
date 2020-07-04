@@ -1,9 +1,9 @@
 # BlackJack
 ### A BlackJack game using OOP with a simple betting functionality.
 
-The game starts with asking the player how many chips they would like to bet; by default, the player starts with 100 chips.
+The game starts with cards being dealt to both the dealer and the player, the player will then have the option to choose how much they would like to bet on thier hand while only having one of the dealer's card visible. If the player decides to bet 0 chips, they will be asked if they would like to fold thier hand. 
 
-Next, cards are then dealt to both the dealer and the player. The player can only see one of the dealer's cards and is asked whether they would like to hit, which is to add another card to their hand. The aim is for the player to achieve a hand value that is larger than the dealer's hand value and as close to 21 as possible without going over. 
+The player is asked whether they would like to hit, which is to add another card to their hand. The aim is for the player to achieve a hand value that is larger than the dealer's hand value and as close to 21 as possible without going over. 
 
 The player can continue to hit until they choose not to or continue until they bust, that is, obtain a hand value over 21. If an Ace is drawn, for either the player or the dealer, and the sum of the hand is over 21, the value of the Ace becomes 1. The result is that the hand sum is reduced by 10 and there is no longer a bust. 
 
